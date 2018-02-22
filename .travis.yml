@@ -1,0 +1,25 @@
+---
+language: "php"
+dist: precise
+services:
+  - mysql
+
+php:
+  - 7.1
+
+before_install:
+  - mysql -e 'CREATE DATABASE tisuit;'    
+
+before_script:
+- composer install
+- composer require phpunit/phpunit satooshi/php-coveralls
+- wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.5.0/php-cs-fixer.phar -O php-cs-fixer
+- chmod +x ./php-cs-fixer
+- mkdir -p tests/coverage
+
+script:
+- ./php-cs-fixer fix --dry-run --diff
+- phpunit --coverage-text --coverage-clover ./tests/coverage/clover.xml
+
+after_script:
+- travis_retry php vendor/bin/coveralls -v

@@ -1,0 +1,22 @@
+{
+    "name": "wtf/orm",
+    "type": "library",
+    "description": "ORM for WTF Framework",
+    "license": "MIT",
+    "prefer-stable": true,
+    "require": {
+        "ext-pdo": "*",
+        "wtf/core": "^1",
+        "catfan/medoo": "@stable",
+        "robmorgan/phinx": "@stable",
+        "respect/validation": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wtf\\ORM\\": "src/"
+        }
+    },
+    "replace": {
+        "tisuit/orm-medoo": "*"
+    }
+}
