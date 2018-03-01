@@ -1,13 +1,16 @@
 ---
 language: php
+dist: precise
+services:
+- mysql
 
 git:
   depth: 1
-                                                                                                                                                                                             
-cache:                                                                                                                                                                                       
-  directories:                                                                                                                                                                               
-    - $HOME/.composer                                                                                                                                                                        
-                                                                                                                                                                                             
+
+cache:
+  directories:
+    - $HOME/.composer
+
 env:
   global:
     - PHP_CS_FIXER_IGNORE_ENV=1
@@ -15,6 +18,9 @@ env:
 php:
   - 7.1
   - 7.2
+
+before_install:
+- mysql -e 'CREATE DATABASE tisuit;'
 
 before_script:
 - composer install
