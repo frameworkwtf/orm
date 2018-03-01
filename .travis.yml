@@ -1,19 +1,25 @@
 ---
-language: "php"
-dist: precise
-services:
-  - mysql
+language: php
+
+git:
+  depth: 1
+                                                                                                                                                                                             
+cache:                                                                                                                                                                                       
+  directories:                                                                                                                                                                               
+    - $HOME/.composer                                                                                                                                                                        
+                                                                                                                                                                                             
+env:
+  global:
+    - PHP_CS_FIXER_IGNORE_ENV=1
 
 php:
   - 7.1
-
-before_install:
-  - mysql -e 'CREATE DATABASE tisuit;'    
+  - 7.2
 
 before_script:
 - composer install
 - composer require phpunit/phpunit satooshi/php-coveralls
-- wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.5.0/php-cs-fixer.phar -O php-cs-fixer
+- wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v2.10.3/php-cs-fixer.phar -O php-cs-fixer
 - chmod +x ./php-cs-fixer
 - mkdir -p tests/coverage
 
@@ -22,4 +28,4 @@ script:
 - phpunit --coverage-text --coverage-clover ./tests/coverage/clover.xml
 
 after_script:
-- travis_retry php vendor/bin/coveralls -v
+- travis_retry php vendor/bin/php-coveralls -v
