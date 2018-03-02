@@ -125,4 +125,9 @@ class EntityTest extends TestCase
         $this->assertTrue(($collection->count() > 0));
         $this->assertNull($user->getErrorRelation());
     }
+
+    public function testGetScheme(): void
+    {
+        $this->assertInternalType('array', $this->container['entity']('user')->getScheme());
+    }
 }

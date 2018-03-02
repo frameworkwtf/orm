@@ -204,7 +204,8 @@ abstract class Entity extends \Wtf\Root
             $type = $relation['type'] ?? 'has_one';
             $key = $relation['key'] ?? ('has_one' === $type ? $this->__getEntityName().'_id' : 'id');
             $foreignKey = $relation['foreign_key'] ?? ('has_one' === $type ? 'id' : $this->__getEntityName().'_id');
-            $this->relationObjects[$name] = ('has_one' === $type) ? $entity->load($this->get($key), $foreignKey) : $entity->loadAll([$foreignKey => $this->get($key)]);
+            $assoc = $relation['assoc'] ?? false;
+            $this->relationObjects[$name] = ('has_one' === $type) ? $entity->load($this->get($key), $foreignKey) : $entity->loadAll([$foreignKey => $this->get($key)], $assoc);
         }
 
         return $this->relationObjects[$name] ?? null;
@@ -278,6 +279,7 @@ abstract class Entity extends \Wtf\Root
      *         'type' => 'has_one', //default, other options: has_many
      *         'key' => 'current_entity_key', //optional, default for has_one: <current_entity>_id, for has_many: id
      *         'foreign_key' => 'another_entity_key', //optional, default for has_one: id, for has_many: '<current_entity>_id'
+     *         'assoc' => false, //optional, return data arrays instead of objects on "has_many", default: false
      *      ],
      * ];.
      *
