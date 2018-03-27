@@ -159,7 +159,7 @@ abstract class Entity extends \Wtf\Root
 
         return $this;
     }
-protected function select($fields = '*', array $where = []) 
+protected function select($fields = '*', array $where = []) {
     yield $this->medoo->select($this->getTable(), $fields, $where);
     }
     /**
