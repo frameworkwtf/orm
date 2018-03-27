@@ -159,7 +159,9 @@ abstract class Entity extends \Wtf\Root
 
         return $this;
     }
-
+protected function select($fields = '*', array $where = []) {
+    yield $this->medoo->select($this->getTable(), $fields, $where);
+    }
     /**
      * Get all entities from db.
      *
@@ -170,15 +172,15 @@ abstract class Entity extends \Wtf\Root
      */
     public function loadAll(array $where = [], bool $assoc = false): Collection
     {
-        $allData = $this->medoo->select($this->getTable(), '*', $where);
-        $this->sentry->breadcrumbs->record([
+        //$allData = $this->medoo->select($this->getTable(), '*', $where);
+        /*$this->sentry->breadcrumbs->record([
             'message' => 'Entity '.$this->__getEntityName().'::loadAll('.print_r($where, true).')',
             'data' => ['query' => $this->medoo->last()],
             'category' => 'Database',
             'level' => 'info',
-        ]);
+        ]);*/
         $items = [];
-        foreach ($allData as $data) {
+        foreach ($this->select('*', $where) as $data) {
             $items[] = ($assoc) ? $data : $this->container['entity']($this->__getEntityName())->setData($data);
         }
 
