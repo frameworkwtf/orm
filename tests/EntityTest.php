@@ -17,9 +17,9 @@ class EntityTest extends TestCase
         $app = new \Wtf\App(['config_dir' => $dir]);
         $this->container = $app->getContainer();
         //Init db
-        ob_start();
+        \ob_start();
         include $dir.'/../dump.sql';
-        $query = ob_get_clean();
+        $query = \ob_get_clean();
         $this->container->medoo->pdo->exec($query);
     }
 
@@ -115,7 +115,7 @@ class EntityTest extends TestCase
             'title' => 'Test',
             'description' => 'test',
         ]);
-        foreach (range(1, 5) as $i) {
+        foreach (\range(1, 5) as $i) {
             $article->setId(null);
             $article->save();
         }

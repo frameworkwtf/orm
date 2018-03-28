@@ -44,10 +44,10 @@ class Provider implements ServiceProviderInterface
     protected function setEntityLoader(Container $container): callable
     {
         return $container->protect(function (string $name) use ($container) {
-            $parts = explode('_', $name);
+            $parts = \explode('_', $name);
             $class = $container['config']('medoo.namespace');
             foreach ($parts as $part) {
-                $class .= ucfirst($part);
+                $class .= \ucfirst($part);
             }
             if (!$container->has('entity_'.$class)) {
                 $container['entity_'.$class] = $container->factory(function ($container) use ($class) {

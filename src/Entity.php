@@ -21,7 +21,7 @@ abstract class Entity extends \Wtf\Root
      */
     protected function __getEntityName(): string
     {
-        return ($pos = strrpos(get_class($this), '\\')) ? substr(get_class($this), $pos + 1) : get_class($this);
+        return ($pos = \strrpos(\get_class($this), '\\')) ? \substr(\get_class($this), $pos + 1) : \get_class($this);
     }
 
     /**
@@ -32,9 +32,9 @@ abstract class Entity extends \Wtf\Root
      */
     public function __call(?string $method = null, array $params = [])
     {
-        $parts = preg_split('/([A-Z][^A-Z]*)/', $method, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        $type = array_shift($parts);
-        $relation = strtolower(implode('_', $parts));
+        $parts = \preg_split('/([A-Z][^A-Z]*)/', $method, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $type = \array_shift($parts);
+        $relation = \strtolower(\implode('_', $parts));
 
         if ('get' === $type && isset($this->getRelations()[$relation])) {
             return $this->loadRelation($relation);
@@ -80,7 +80,7 @@ abstract class Entity extends \Wtf\Root
      */
     public function setData(array $data)
     {
-        $this->data = array_merge($this->data, $data);
+        $this->data = \array_merge($this->data, $data);
 
         return $this;
     }
@@ -149,9 +149,9 @@ abstract class Entity extends \Wtf\Root
     public function load($value, $field = 'id', array $fields = null): self
     {
         $data = $this->medoo->get($this->getTable(), $fields ?? '*', [$field => $value]);
-        $this->data = is_array($data) ? $data : []; //handle empty result gracefuly
+        $this->data = \is_array($data) ? $data : []; //handle empty result gracefuly
         $this->sentry->breadcrumbs->record([
-            'message' => 'Entity '.$this->__getEntityName().'::load('.$value.', '.$field.', ['.implode(', ', $fields ?? []).')',
+            'message' => 'Entity '.$this->__getEntityName().'::load('.$value.', '.$field.', ['.\implode(', ', $fields ?? []).')',
             'data' => ['query' => $this->medoo->last()],
             'category' => 'Database',
             'level' => 'info',
@@ -172,7 +172,7 @@ abstract class Entity extends \Wtf\Root
     {
         $allData = $this->medoo->select($this->getTable(), '*', $where);
         $this->sentry->breadcrumbs->record([
-            'message' => 'Entity '.$this->__getEntityName().'::loadAll('.print_r($where, true).')',
+            'message' => 'Entity '.$this->__getEntityName().'::loadAll('.\print_r($where, true).')',
             'data' => ['query' => $this->medoo->last()],
             'category' => 'Database',
             'level' => 'info',
