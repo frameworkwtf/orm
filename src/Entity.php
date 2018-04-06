@@ -100,6 +100,17 @@ abstract class Entity extends \Wtf\Root
             throw new Exception('Entity '.$this->__getEntityName().' data is not valid');
         }
 
+        /**
+         * Remove fields that not exists in DB table scheme,
+         * to avoid thrown exceptions on saving garbadge fields.
+         */
+        $scheme = \array_keys($this->getScheme());
+        foreach ($this->data as $key => $value) {
+            if (!\in_array($key, $scheme, true)) {
+                unset($this->data[$key]);
+            }
+        }
+
         if ($this->getId()) {
             $this->medoo->update($this->getTable(), $this->data, ['id' => $this->getId()]);
         } else {

@@ -42,12 +42,13 @@ class EntityTest extends TestCase
 
     public function testSave(): void
     {
-        $data = ['email' => 'example@example.com', 'name' => 'Test user'];
+        $data = ['email' => 'example@example.com', 'name' => 'Test user', 'notexisting' => 'field'];
         $entity = $this->container['entity']('user');
         $entity->setData($data);
         $this->assertNull($entity->getId());
         $entity->save();
         $this->assertInternalType('numeric', $entity->getId());
+        $this->assertNull($entity->get('notexisting'));
         $entity->setData(['name' => 'New test']);
         $entity->save();
         $this->assertEquals('New test', $entity->getName());
