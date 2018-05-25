@@ -174,16 +174,17 @@ abstract class Entity extends \Wtf\Root
     /**
      * Get all entities from db.
      *
-     * @param array $where Where clause
-     * @param bool  $assoc Return collection of entity objects OR of assoc arrays
+     * @param array $where  Where clause
+     * @param bool  $assoc  Return collection of entity objects OR of assoc arrays
+     * @param array $fields Fields to load, default is all
      *
      * @return Collection
      */
-    public function loadAll(array $where = [], bool $assoc = false): Collection
+    public function loadAll(array $where = [], bool $assoc = false, array $fields = null): Collection
     {
-        $allData = $this->medoo->select($this->getTable(), '*', $where);
+        $allData = $this->medoo->select($this->getTable(), $fields ? $fields : '*', $where);
         $this->sentry->breadcrumbs->record([
-            'message' => 'Entity '.$this->__getEntityName().'::loadAll('.\print_r($where, true).')',
+            'message' => 'Entity '.$this->__getEntityName().'::loadAll('.\print_r($where, true).', '.$assoc.', '.\print_r($fields, true).')',
             'data' => ['query' => $this->medoo->last()],
             'category' => 'Database',
             'level' => 'info',
