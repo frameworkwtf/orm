@@ -62,30 +62,6 @@ abstract class Entity extends \Wtf\Root
     }
 
     /**
-     * Return all entity data as array.
-     *
-     * @return array
-     */
-    public function getData(): array
-    {
-        return $this->data;
-    }
-
-    /**
-     * Set all data to entity.
-     *
-     * @param array $data
-     *
-     * @return Entity
-     */
-    public function setData(array $data)
-    {
-        $this->data = \array_merge($this->data, $data);
-
-        return $this;
-    }
-
-    /**
      * Save entity data in db.
      *
      * @param bool $validate

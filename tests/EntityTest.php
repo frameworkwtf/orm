@@ -23,23 +23,6 @@ class EntityTest extends TestCase
         $this->container->medoo->pdo->exec($query);
     }
 
-    public function testGetSet(): void
-    {
-        //getData (from scratch)
-        $entity = $this->container['entity']('dummy_entity');
-        $this->assertEquals([], $entity->getData());
-        //setData (from scratch)
-        $entity->setData(['one' => true, 'two' => true]);
-        $this->assertTrue($entity->getOne());
-        $this->assertTrue($entity->getTwo());
-        //setData (mege)
-        $entity->setData(['one' => false]);
-        $this->assertFalse($entity->getOne());
-        $this->assertTrue($entity->getTwo());
-        //getData (with data)
-        $this->assertEquals(['one' => false, 'two' => true], $entity->getData());
-    }
-
     public function testSave(): void
     {
         $data = ['email' => 'example@example.com', 'name' => 'Test user', 'notexisting' => 'field'];
