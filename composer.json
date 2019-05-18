@@ -11,7 +11,7 @@
         "respect/validation": "^1"
     },
     "suggest": {
-        "robmorgan/phinx": "Database migrations and seeds",
+        "robmorgan/phinx": "Database migrations and seeds"
     },
     "autoload": {
         "psr-4": {
