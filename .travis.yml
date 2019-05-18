@@ -16,8 +16,8 @@ env:
     - PHP_CS_FIXER_IGNORE_ENV=1
 
 php:
-  - 7.1
   - 7.2
+  - 7.3
 
 before_install:
 - mysql -e 'CREATE DATABASE tisuit;'
