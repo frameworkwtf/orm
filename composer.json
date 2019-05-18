@@ -8,8 +8,10 @@
         "ext-pdo": "*",
         "wtf/core": "^1.1.6",
         "catfan/medoo": "@stable",
-        "robmorgan/phinx": "@stable",
         "respect/validation": "^1"
+    },
+    "suggest": {
+        "robmorgan/phinx": "Database migrations and seeds",
     },
     "autoload": {
         "psr-4": {
