@@ -51,10 +51,18 @@ abstract class Entity extends \Wtf\Root
     public function getScheme(): array
     {
         if (null === $this->scheme) {
-            $raw = $this->medoo->query('DESCRIBE '.$this->getTable())->fetchAll();
+            switch ($this->config('medoo.database_type')) {
+            case 'pgsql':
+                $query = 'SELECT column_name AS "Field" FROM information_schema.COLUMNS WHERE table_name=\''.$this->getTable().'\'';
+                break;
+            default:
+                $query = 'DESCRIBE '.$this->getTable();
+                break;
+            }
+            $raw = $this->medoo->query($query)->fetchAll();
             $this->scheme = [];
             foreach ($raw as $field) {
-                $this->scheme[$field['Field']] = $field;
+                $this->scheme[] = $field['Field'];
             }
         }
 
@@ -76,13 +84,12 @@ abstract class Entity extends \Wtf\Root
             throw new Exception('Entity '.$this->__getEntityName().' data is not valid');
         }
 
-        /**
+        /*
          * Remove fields that not exists in DB table scheme,
          * to avoid thrown exceptions on saving garbadge fields.
          */
-        $scheme = \array_keys($this->getScheme());
         foreach ($this->data as $key => $value) {
-            if (!\in_array($key, $scheme, true)) {
+            if (!\in_array($key, $this->getScheme(), true)) {
                 unset($this->data[$key]);
             }
         }
