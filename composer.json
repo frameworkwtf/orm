@@ -6,11 +6,11 @@
     "prefer-stable": true,
     "require": {
         "ext-pdo": "*",
-        "wtf/core": "^1.1.6",
-        "catfan/medoo": "@stable",
-        "respect/validation": "^1"
+        "wtf/core": "^2",
+        "catfan/medoo": "@stable"
     },
     "suggest": {
+        "wtf/middleware-filters": "Auto apply WHERE conditions from GET request params",
         "robmorgan/phinx": "Database migrations and seeds"
     },
     "autoload": {
@@ -18,7 +18,24 @@
             "Wtf\\ORM\\": "src/"
         }
     },
-    "replace": {
-        "tisuit/orm-medoo": "*"
+    "authors": [
+        {
+            "name": "Nikita Chernyi",
+            "email": "osi@rakshazi.me",
+            "homepage": "https://rakshazi.me"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/frameworkwtf/orm/issues"
+    },
+    "scripts": {
+        "test:cs": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "test:unit": "vendor/bin/phpunit -c phpunit.xml.dist",
+        "test:upload": "vendor/bin/php-coveralls -v"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "@stable",
+        "php-coveralls/php-coveralls": "^2.1",
+        "friendsofphp/php-cs-fixer": "^2.15"
     }
 }

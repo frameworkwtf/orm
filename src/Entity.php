@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Wtf\ORM;
 
-use Exception;
-use Respect\Validation\Exceptions\NestedValidationException;
-use Slim\Collection;
-
 abstract class Entity extends \Wtf\Root
 {
     protected $relationObjects = [];
@@ -51,7 +47,7 @@ abstract class Entity extends \Wtf\Root
     public function getScheme(): array
     {
         if (null === $this->scheme) {
-            switch ($this->config('medoo.database_type')) {
+            switch ($this->config('wtf.orm.database_type')) {
             case 'pgsql':
                 $query = 'SELECT column_name AS "Field" FROM information_schema.COLUMNS WHERE table_name=\''.$this->getTable().'\'';
                 break;
@@ -72,18 +68,10 @@ abstract class Entity extends \Wtf\Root
     /**
      * Save entity data in db.
      *
-     * @param bool $validate
-     *
-     * @throws Exception if entity data is not valid
-     *
      * @return Entity
      */
-    public function save(bool $validate = true): self
+    public function save(): self
     {
-        if ($validate && $this->validate()) {
-            throw new Exception('Entity '.$this->__getEntityName().' data is not valid');
-        }
-
         /*
          * Remove fields that not exists in DB table scheme,
          * to avoid thrown exceptions on saving garbadge fields.
@@ -108,27 +96,6 @@ abstract class Entity extends \Wtf\Root
         ]);
 
         return $this;
-    }
-
-    /**
-     * Validate entity data.
-     *
-     * @param string $method Validation for method, default: save
-     *
-     * @return array [['field' => 'error message']]
-     */
-    public function validate(string $method = 'save'): array
-    {
-        $errors = [];
-        foreach ($this->getValidators()[$method] ?? [] as $field => $validator) {
-            try {
-                $validator->setName($field)->assert($this->get($field));
-            } catch (NestedValidationException $e) {
-                $errors[$field] = $e->getMessages();
-            }
-        }
-
-        return $errors;
     }
 
     /**
@@ -161,10 +128,14 @@ abstract class Entity extends \Wtf\Root
      * @param bool  $assoc  Return collection of entity objects OR of assoc arrays
      * @param array $fields Fields to load, default is all
      *
-     * @return Collection
+     * @return array
      */
-    public function loadAll(array $where = [], bool $assoc = false, array $fields = null): Collection
+    public function loadAll(array $where = [], bool $assoc = false, array $fields = null): array
     {
+        //autoapply filters from wtf/middleware-filters package
+        if ($this->container->has('__wtf_orm_filters')) {
+            $where = \array_merge($this->container->get('__wtf_orm_filters'), $where);
+        }
         $allData = $this->medoo->select($this->getTable(), $fields ? $fields : '*', $where);
         $this->sentry->breadcrumbs->record([
             'message' => 'Entity '.$this->__getEntityName().'::loadAll('.\print_r($where, true).', '.$assoc.', '.\print_r($fields, true).')',
@@ -177,7 +148,7 @@ abstract class Entity extends \Wtf\Root
             $items[] = ($assoc) ? $data : $this->container['entity']($this->__getEntityName())->setData($data);
         }
 
-        return new Collection($items);
+        return $items;
     }
 
     /**
@@ -185,7 +156,7 @@ abstract class Entity extends \Wtf\Root
      *
      * @param string $name Relation name
      *
-     * @return null|Collection|Entity
+     * @return null|array|Entity
      */
     public function loadRelation(string $name)
     {
@@ -246,23 +217,6 @@ abstract class Entity extends \Wtf\Root
      * @return string
      */
     abstract public function getTable(): string;
-
-    /**
-     * Get list of field validations
-     * Structure:
-     * <code>
-     * [
-     *     '<method>' => [
-     *         '<field_name>' => v::stringType()->length(1, 255),
-     *          //...
-     *     ],
-     * ];
-     * </code>
-     * Example: ['save' => ['name' => v::stringType()->length(1,255)]].
-     *
-     * @return array
-     */
-    abstract public function getValidators(): array;
 
     /**
      * Return array of entity relations
