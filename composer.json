@@ -4,6 +4,7 @@
     "description": "ORM for WTF Framework",
     "license": "MIT",
     "prefer-stable": true,
+    "minimum-stability": "dev",
     "require": {
         "ext-pdo": "*",
         "wtf/core": "^2",

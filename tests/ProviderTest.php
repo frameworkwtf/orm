@@ -13,18 +13,19 @@ class ProviderTest extends TestCase
     protected function setUp(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
+        $app = new \Wtf\App($dir);
         $this->container = $app->getContainer();
     }
 
     public function testMedoo(): void
     {
-        $this->assertInstanceOf('\Medoo\Medoo', $this->container->medoo);
+        $this->assertInstanceOf('\Medoo\Medoo', $this->container->get('medoo'));
     }
 
-    public function testEntityLoader(): void
+    public function testEntityFactory(): void
     {
-        $entity = $this->container['entity']('dummy_entity');
-        $this->assertInstanceOf('\Wtf\ORM\Entity', $this->container['entity']('dummy_entity'));
+        $factory = $this->container->get('entity');
+        $this->assertInstanceOf('\Wtf\ORM\Factory', $factory);
+        $this->assertInstanceOf('\Wtf\ORM\Entity', $factory('dummy_entity'));
     }
 }

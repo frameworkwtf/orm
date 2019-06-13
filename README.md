@@ -1,4 +1,4 @@
-# ORM / Medoo
+# ORM
 [![Build Status](https://travis-ci.org/frameworkwtf/orm.svg?branch=2.x)](https://travis-ci.org/frameworkwtf/orm) [![Coverage Status](https://coveralls.io/repos/frameworkwtf/orm/badge.svg?branch=2.x&service=github)](https://coveralls.io/github/frameworkwtf/orm?branch=2.x)
 
 ORM, based on [medoo.in](http://medoo.in)
