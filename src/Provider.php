@@ -20,10 +20,6 @@ class Provider implements ServiceProviderInterface
 
     /**
      * Set Medoo into container.
-     *
-     * @param Container $container
-     *
-     * @return callable
      */
     protected function setMedoo(Container $container): callable
     {
@@ -36,10 +32,6 @@ class Provider implements ServiceProviderInterface
 
     /**
      * Set entity() function into container.
-     *
-     * @param Container $container
-     *
-     * @return callable
      */
     protected function setEntityLoader(Container $container): callable
     {

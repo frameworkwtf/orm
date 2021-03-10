@@ -10,14 +10,32 @@ use Slim\Collection;
 
 abstract class Entity extends \Wtf\Root
 {
+    /**
+     * map of relations.
+     *
+     * @var array
+     */
     protected $relationObjects = [];
+
+    /**
+     * Original entity data, used to calculate delta
+     * between original and updated data.
+     *
+     * @var array
+     */
+    protected $__data;
+
+    /**
+     * Database table scheme, to autostrip non-existing fields
+     * from entity's data before save.
+     *
+     * @var array
+     */
     protected $scheme;
 
     /**
      * Get short entity name (without namespace)
      * Helper function, required for lazy load.
-     *
-     * @return string
      */
     protected function __getEntityName(): string
     {
@@ -26,9 +44,6 @@ abstract class Entity extends \Wtf\Root
 
     /**
      * Magic relation getter.
-     *
-     * @param null|string $method
-     * @param array       $params
      */
     public function __call(?string $method = null, array $params = [])
     {
@@ -44,9 +59,21 @@ abstract class Entity extends \Wtf\Root
     }
 
     /**
-     * Get entity scheme.
+     * Set original data to entity.
      *
-     * @return array
+     * @NOTE: only for internal usage,
+     *
+     * @see \Wtf\Root::setData()
+     */
+    protected function __setOriginalData(array $data): self
+    {
+        $this->__data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Get entity scheme.
      */
     public function getScheme(): array
     {
@@ -72,13 +99,13 @@ abstract class Entity extends \Wtf\Root
     /**
      * Save entity data in db.
      *
-     * @param bool $validate
+     * @param bool $delta Save only delta between original and changed data
      *
      * @throws Exception if entity data is not valid
      *
      * @return Entity
      */
-    public function save(bool $validate = true): self
+    public function save(bool $validate = true, bool $delta = true): self
     {
         if ($validate && $this->validate()) {
             throw new Exception('Entity '.$this->__getEntityName().' data is not valid');
@@ -93,11 +120,12 @@ abstract class Entity extends \Wtf\Root
                 unset($this->data[$key]);
             }
         }
+        $data = $delta ? \array_diff_assoc($this->data ?? [], $this->__data ?? []) : $this->data;
 
         if ($this->getId()) {
-            $this->medoo->update($this->getTable(), $this->data, ['id' => $this->getId()]);
+            $this->medoo->update($this->getTable(), $data, ['id' => $this->getId()]);
         } else {
-            $this->medoo->insert($this->getTable(), $this->data);
+            $this->medoo->insert($this->getTable(), $data);
             $this->setId($this->medoo->id());
         }
         $this->sentry->breadcrumbs->record([
@@ -143,9 +171,10 @@ abstract class Entity extends \Wtf\Root
     public function load($value, $field = 'id', array $fields = null): self
     {
         $data = $this->medoo->get($this->getTable(), $fields ?? '*', [$field => $value]);
-        $this->data = \is_array($data) ? $data : []; //handle empty result gracefuly
+        $data = \is_array($data) ? $data : []; //handle empty result gracefuly
+        $this->__setOriginalData($data)->setData($data);
         $this->sentry->breadcrumbs->record([
-            'message' => 'Entity '.$this->__getEntityName().'::load('.$value.', '.$field.', ['.\implode(', ', $fields ?? []).')',
+            'message' => 'Entity '.$this->__getEntityName().'::load('.$value.', '.$field.', ['.\implode(', ', $fields ?? []).'])',
             'data' => ['query' => $this->medoo->last()],
             'category' => 'Database',
             'level' => 'info',
@@ -160,8 +189,6 @@ abstract class Entity extends \Wtf\Root
      * @param array $where  Where clause
      * @param bool  $assoc  Return collection of entity objects OR of assoc arrays
      * @param array $fields Fields to load, default is all
-     *
-     * @return Collection
      */
     public function loadAll(array $where = [], bool $assoc = false, array $fields = null): Collection
     {
@@ -174,7 +201,7 @@ abstract class Entity extends \Wtf\Root
         ]);
         $items = [];
         foreach ($allData as $data) {
-            $items[] = ($assoc) ? $data : $this->container['entity']($this->__getEntityName())->setData($data);
+            $items[] = ($assoc) ? $data : $this->container['entity']($this->__getEntityName())->__setOriginalData($data)->setData($data);
         }
 
         return new Collection($items);
@@ -208,10 +235,6 @@ abstract class Entity extends \Wtf\Root
 
     /**
      * Determine whether the target data existed.
-     *
-     * @param array $where
-     *
-     * @return bool
      */
     public function has(array $where = []): bool
     {
@@ -222,8 +245,6 @@ abstract class Entity extends \Wtf\Root
      * Get count of items by $where conditions.
      *
      * @param array $where Where clause
-     *
-     * @return int
      */
     public function count(array $where = []): int
     {
@@ -232,8 +253,6 @@ abstract class Entity extends \Wtf\Root
 
     /**
      * Delete entity row from db.
-     *
-     * @return bool
      */
     public function delete(): bool
     {
@@ -242,8 +261,6 @@ abstract class Entity extends \Wtf\Root
 
     /**
      * Return entity table name.
-     *
-     * @return string
      */
     abstract public function getTable(): string;
 
@@ -259,8 +276,6 @@ abstract class Entity extends \Wtf\Root
      * ];
      * </code>
      * Example: ['save' => ['name' => v::stringType()->length(1,255)]].
-     *
-     * @return array
      */
     abstract public function getValidators(): array;
 
@@ -304,8 +319,6 @@ abstract class Entity extends \Wtf\Root
      * ]
      * //This example can be called like $userEntity->getPosts()
      * </code>
-     *
-     * @return array
      */
     abstract public function getRelations(): array;
 }
