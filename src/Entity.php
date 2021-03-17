@@ -123,17 +123,24 @@ abstract class Entity extends \Wtf\Root
         $data = $delta ? \array_diff_assoc($this->data ?? [], $this->__data ?? []) : $this->data;
 
         if ($this->getId()) {
-            $this->medoo->update($this->getTable(), $data, ['id' => $this->getId()]);
+            // If delta is empty, do not run query at all
+            if ($data) {
+                $this->medoo->update($this->getTable(), $data, ['id' => $this->getId()]);
+            }
         } else {
             $this->medoo->insert($this->getTable(), $data);
             $this->setId($this->medoo->id());
         }
-        $this->sentry->breadcrumbs->record([
-            'message' => 'Entity '.$this->__getEntityName().'::save()',
-            'data' => ['query' => $this->medoo->last()],
-            'category' => 'Database',
-            'level' => 'info',
-        ]);
+
+        // Record breadcrumb only if we had query
+        if ($data || !$this->getId()) {
+            $this->sentry->breadcrumbs->record([
+                'message' => 'Entity '.$this->__getEntityName().'::save()',
+                'data' => ['query' => $this->medoo->last()],
+                'category' => 'Database',
+                'level' => 'info',
+            ]);
+        }
 
         return $this;
     }
